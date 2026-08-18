@@ -39,12 +39,31 @@ class ProductResource extends Resource
                     ->relationship('category', 'name')
                     ->label('Categoría')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->required()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nombre de Categoría')
+                            ->required(),
+                        Forms\Components\Textarea::make('description')
+                            ->label('Descripción'),
+                    ]),
                 Forms\Components\Select::make('supplier_id')
                     ->relationship('supplier', 'name')
                     ->label('Proveedor')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->required()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nombre de Proveedor')
+                            ->required(),
+                        Forms\Components\TextInput::make('email')
+                            ->label('Correo Electrónico')
+                            ->email(),
+                        Forms\Components\TextInput::make('phone')
+                            ->label('Teléfono'),
+                    ]),
                 Forms\Components\TextInput::make('price')
                     ->label('Precio')
                     ->required()

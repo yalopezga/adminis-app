@@ -3,21 +3,21 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\InventoryMovementResource\Pages;
-use App\Filament\Resources\InventoryMovementResource\RelationManagers;
 use App\Models\InventoryMovement;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class InventoryMovementResource extends Resource
 {
     protected static ?string $model = InventoryMovement::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
+    protected static ?string $navigationLabel = 'Movimientos de Inventario';
+    protected static ?string $pluralModelLabel = 'Movimientos de Inventario';
+    protected static ?string $modelLabel = 'Movimiento';
 
     public static function form(Form $form): Form
     {
@@ -25,15 +25,27 @@ class InventoryMovementResource extends Resource
             ->schema([
                 Forms\Components\Select::make('product_id')
                     ->relationship('product', 'name')
+                    ->label('Producto')
+                    ->searchable()
+                    ->preload()
                     ->required(),
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name'),
-                Forms\Components\TextInput::make('type')
+
+                Forms\Components\Select::make('type')
+                    ->label('Tipo de Movimiento')
+                    ->options([
+                        'in' => 'Entrada (Aumenta stock)',
+                        'out' => 'Salida (Disminuye stock)',
+                    ])
                     ->required(),
+
                 Forms\Components\TextInput::make('quantity')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\Textarea::make('note')
+                    ->label('Cantidad')
+                    ->numeric()
+                    ->minValue(1)
+                    ->required(),
+
+                Forms\Components\Textarea::make('notes')
+                    ->label('Notas / Motivo')
                     ->columnSpanFull(),
             ]);
     }
@@ -42,43 +54,26 @@ class InventoryMovementResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('product.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('type'),
-                Tables\Columns\TextColumn::make('quantity')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('created_at')->label('Fecha')->dateTime()->sortable(),
+                Tables\Columns\TextColumn::make('product.name')->label('Producto')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Tipo')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'in' => 'success',
+                        'out' => 'danger',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'in' => 'Entrada',
+                        'out' => 'Salida',
+                        default => $state,
+                    }),
+                Tables\Columns\TextColumn::make('quantity')->label('Cantidad')->sortable(),
+                Tables\Columns\TextColumn::make('user.name')->label('Registrado por')->default('Sistema'),
+                Tables\Columns\TextColumn::make('notes')->label('Notas')->limit(30),
             ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getPages(): array
