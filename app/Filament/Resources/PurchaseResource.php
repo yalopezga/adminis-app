@@ -22,32 +22,35 @@ class PurchaseResource extends Resource
 {
     protected static ?string $model = Purchase::class;
 
+    // --- TRADUCCIÓN AUTOMÁTICA Y AGRUPACIÓN ---
+    protected static ?string $modelLabel = 'entrada';
+    protected static ?string $pluralModelLabel = 'entradas';
+    protected static ?string $navigationLabel = 'Entradas';
     protected static ?string $navigationIcon = 'heroicon-o-arrow-down-tray';
-    // protected static ?string $navigationGroup = 'Inventory';
-
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Select::make('product_id')
-                    ->label('Product')
+                    ->label('Producto')
                     ->relationship('product', 'name')
                     ->preload()
                     ->searchable()
                     ->required(),
 
                 Select::make('supplier_id')
-                    ->label('Supplier')
+                    ->label('Proveedor')
                     ->relationship('supplier', 'name')
                     ->searchable()
                     ->preload()
                     ->createOptionForm([
                         TextInput::make('name')
-                            ->label('Supplier Name')
+                            ->label('Nombre del Proveedor')
                             ->required()
                             ->maxLength(255),
                         TextInput::make('contact')
+                            ->label('Contacto / Teléfono')
                             ->tel()
                             ->required()
                             ->maxLength(11),
@@ -55,12 +58,13 @@ class PurchaseResource extends Resource
                     ->required(),
 
                 TextInput::make('quantity')
+                    ->label('Cantidad')
                     ->numeric()
                     ->minValue(1)
                     ->required(),
 
                 DatePicker::make('purchased_at')
-                    ->label('Purchase Date')
+                    ->label('Fecha de Entrada')
                     ->default(now())
                     ->required(),
             ]);
@@ -70,14 +74,14 @@ class PurchaseResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('product.name')->label('Product')->searchable()->sortable(),
-                TextColumn::make('supplier.name')->label('Supplier')->searchable()->sortable(),
-                TextColumn::make('quantity')->sortable()->badge(),
-                TextColumn::make('purchased_at')->date()->sortable(),
+                TextColumn::make('product.name')->label('Producto')->searchable()->sortable(),
+                TextColumn::make('supplier.name')->label('Proveedor')->searchable()->sortable(),
+                TextColumn::make('quantity')->label('Cantidad')->sortable()->badge(),
+                TextColumn::make('purchased_at')->label('Fecha')->date()->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('product')->relationship('product', 'name'),
-                Tables\Filters\SelectFilter::make('supplier')->relationship('supplier', 'name'),
+                Tables\Filters\SelectFilter::make('product')->label('Producto')->relationship('product', 'name'),
+                Tables\Filters\SelectFilter::make('supplier')->label('Proveedor')->relationship('supplier', 'name'),
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),

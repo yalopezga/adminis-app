@@ -19,19 +19,25 @@ class SupplierResource extends Resource
 {
     protected static ?string $model = Supplier::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationGroup = 'Inventory';
+    // --- TRADUCCIÓN AUTOMÁTICA DE TÍTULOS Y BOTONES ---
+    protected static ?string $modelLabel = 'proveedor';
+    protected static ?string $pluralModelLabel = 'proveedores';
+    protected static ?string $navigationLabel = 'Proveedores';
+    protected static ?string $navigationGroup = 'Inventario';
 
+    protected static ?string $navigationIcon = 'heroicon-o-truck'; // Cambiado a un ícono más representativo (camión)
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->label('Nombre del Proveedor')
                     ->required()
                     ->maxLength(100),
 
                 TextInput::make('contact')
+                    ->label('Teléfono / Contacto')
                     ->tel()
                     ->required()
                     ->maxLength(100),
@@ -42,14 +48,22 @@ class SupplierResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->sortable()->searchable(),
-                TextColumn::make('contact')->sortable(),
+                TextColumn::make('name')
+                    ->label('Nombre')
+                    ->sortable()
+                    ->searchable(),
+                    
+                TextColumn::make('contact')
+                    ->label('Contacto')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

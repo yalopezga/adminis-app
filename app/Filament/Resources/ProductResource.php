@@ -22,14 +22,20 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
+    // --- TRADUCCIÓN AUTOMÁTICA DE TÍTULOS Y BOTONES ---
+    protected static ?string $modelLabel = 'producto';
+    protected static ?string $pluralModelLabel = 'productos';
+    protected static ?string $navigationLabel = 'Productos';
+    protected static ?string $navigationGroup = 'Inventario';
+    
     protected static ?string $navigationIcon = 'heroicon-o-cube';
-    protected static ?string $navigationGroup = 'Inventory';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(100),
 
@@ -39,27 +45,29 @@ class ProductResource extends Resource
                     ->unique(ignoreRecord: true),
 
                 Select::make('category_id')
-                    ->label('Category')
+                    ->label('Categoría')
                     ->relationship('category', 'name')
                     ->searchable()
                     ->preload()
                     ->createOptionForm([
                         TextInput::make('name')
-                            ->label('Category Name')
+                            ->label('Nombre de la Categoría')
                             ->required()
                             ->maxLength(255),
                     ])
                     ->required(),
 
                 TextInput::make('stock')
+                    ->label('Stock')
                     ->numeric()
                     ->minValue(0)
                     ->default(0)
                     ->required(),
 
                 TextInput::make('price')
+                    ->label('Precio')
                     ->numeric()
-                    ->prefix('đ')
+                    ->prefix('$')
                     ->required()
                     ->minValue(0.01),
             ]);
@@ -69,18 +77,18 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->sortable()->searchable(),
-                TextColumn::make('sku')->sortable()->searchable(),
-                TextColumn::make('price')->money('usd', true)->sortable(),
-                TextColumn::make('stock')->sortable()->badge()
+                TextColumn::make('name')->label('Nombre')->sortable()->searchable(),
+                TextColumn::make('sku')->label('SKU')->sortable()->searchable(),
+                TextColumn::make('price')->label('Precio')->money('COP', true)->sortable(),
+                TextColumn::make('stock')->label('Stock')->sortable()->badge()
                     ->color(fn(int $state): string => $state < 10 ? 'danger' : 'success'),
-                TextColumn::make('category.name')->sortable(),
-                TextColumn::make('updated_at')->label('Last Updated')->dateTime('d-m-Y h:i A')->sortable(),
-
+                TextColumn::make('category.name')->label('Categoría')->sortable(),
+                TextColumn::make('updated_at')->label('Última actualización')->dateTime('d-m-Y h:i A')->sortable(),
             ])
             ->filters([
-                SelectFilter::make('category')->relationship('category', 'name'),
+                SelectFilter::make('category')->label('Categoría')->relationship('category', 'name'),
                 Tables\Filters\Filter::make('Low Stock')
+                    ->label('Stock Bajo')
                     ->query(fn($query) => $query->where('stock', '<', 10)),
             ])
             ->actions([

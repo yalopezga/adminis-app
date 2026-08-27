@@ -18,14 +18,20 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
+    // --- TRADUCCIÓN AUTOMÁTICA DE TÍTULOS Y BOTONES ---
+    protected static ?string $modelLabel = 'categoría';
+    protected static ?string $pluralModelLabel = 'categorías';
+    protected static ?string $navigationLabel = 'Categorías';
+    protected static ?string $navigationGroup = 'Inventario';
+
     protected static ?string $navigationIcon = 'heroicon-o-tag';
-    protected static ?string $navigationGroup = 'Inventory';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -35,13 +41,14 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->sortable()->searchable(),
+                TextColumn::make('name')->label('Nombre')->sortable()->searchable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
